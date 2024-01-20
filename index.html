@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASCII Tree Generator</title>
+    <!-- Include Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .text-box {
+            margin-bottom: 10px;
+        }
+
+        #input, #output {
+            width: 100%;
+            min-height: 150px;
+        }
+
+        #output {
+            white-space: pre;
+        }
+
+        #generatedCode {
+            width: 100%;
+            min-height: 150px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-md-6 text-box">
+                <textarea id="input" class="form-control" placeholder="Type your tree here..." onkeydown="handleTab(event)">
+
+</textarea>
+            </div>
+            <div class="col-md-6">
+                <button class="btn btn-primary mb-2" onclick="generateTree()">Generate Tree</button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 text-box">
+                <textarea id="generatedCode" class="form-control" readonly></textarea>
+            </div>
+            <div class="col-md-6">
+                <button class="btn btn-success mb-2" onclick="copyGeneratedCode()">Copy Generated Code</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Include Bootstrap JS and Clipboard.js -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.0.7/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.8/dist/clipboard.min.js"></script>
+
+    <script>
+        function handleTab(event) {
+            if (event.key === 'Tab') {
+                event.preventDefault();
+                const textarea = document.getElementById('input');
+                const start = textarea.selectionStart;
+                const end = textarea.selectionEnd;
+
+                // Insert a tab at the caret position
+                textarea.value = textarea.value.substring(0, start) + '\t' + textarea.value.substring(end);
+                
+                // Move the caret position after the inserted tab
+                textarea.setSelectionRange(start + 1, start + 1);
+            }
+        }
+
+        function generateTree() {
+            const inputText = document.getElementById('input').value;
+            const lines = inputText.split('\n');
+            let tree = '';
+            let currentIndent = 0;
+
+            lines.forEach(line => {
+                const trimmedLine = line.trim();
+                if (trimmedLine) {
+                    const depth = line.length - trimmedLine.length;
+                    const indentation = '   '.repeat(depth); // Add an extra space for each depth level
+
+                    if (depth === currentIndent) {
+                        if (trimmedLine.includes('.')) {
+                            tree += `${indentation}├── 📄 ${trimmedLine}\n`;
+                        } else {
+                            tree += `${indentation}├── 📂 ${trimmedLine}/\n`;
+                        }
+                    } else if (depth > currentIndent) {
+                        if (trimmedLine.includes('.')) {
+                            tree += `${indentation}├── 📄 ${trimmedLine}\n`;
+                        } else {
+                            tree += `${indentation}├── 📂 ${trimmedLine}/\n`;
+                        }
+                    } else {
+                        if (trimmedLine.includes('.')) {
+                            tree += `${indentation.slice(0, -1)}└── 📄 ${trimmedLine}\n`;
+                        } else {
+                            tree += `${indentation.slice(0, -1)}└── 📂 ${trimmedLine}/\n`;
+                        }
+                    }
+
+                    currentIndent = depth;
+                }
+            });
+
+            const generatedCodeTextarea = document.getElementById('generatedCode');
+            generatedCodeTextarea.textContent = tree;
+
+            // Enable the "Copy Generated Code" button after generating the tree
+            document.getElementById('copyGeneratedCodeButton').removeAttribute('disabled');
+        }
+
+        function copyGeneratedCode() {
+            const generatedCodeTextarea = document.getElementById('generatedCode');
+            generatedCodeTextarea.select();
+            document.execCommand('copy');
+            alert('Copied generated code to clipboard!');
+        }
+    </script>
+</body>
+</html>
